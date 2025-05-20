@@ -38,6 +38,7 @@
       }
     },
 
+
     "/storeProcedureSetupData": {
       "post": {
         "description": "Stores one set of setup data for an alignment procedure iteration",
@@ -47,14 +48,19 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProcedureSetupData"
+                "$ref": "#/components/schemas/SetupKeyValuePairList"
               },
               "example": {
-                "procedureRunId": "1234",
-                "iterationIndex": "0",
-                "pairs": [
-                  { "key": "someKey", "type": "string", "value": "xq345" },
-                  { "key": "someOtherKey", "type": "integer", "value": "15" }
+                "procedureRunId": 101,
+                "keyValuePairList": [
+                  {
+                    "key": {"iterationNumber": 1, "fieldName": "temperatureSetpoint"},
+                    "value": {"type": "double", "dim1": 1, "dim2": 1, "encodedStringValue": "36.5"}
+                  },
+                 {
+                    "key": {"iterationNumber": 1, "fieldName": "otherField"},
+                    "value": {"type": "integer", "dim1": 1, "dim2": 1, "encodedStringValue": "16"}
+                  }
                 ]
               }
             }
@@ -88,13 +94,19 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProcedureAsRunConfigurationData"
+                "$ref": "#/components/schemas/AsRunConfigurationKeyValuePairList"
               },
               "example": {
-                "procedureRunId": "1234",
-                "keyValuePairs": [
-                  { "key": "someKey", "type": "string", "value": "xq345" },
-                  { "key": "someOtherKey", "type": "integer", "value": "15" }
+                "procedureRunId": 101,
+                "keyValuePairList": [
+                  {
+                    "key": {"procedureRunId": 101, "fieldName": "temperatureSetpoint"},
+                    "value": {"type": "double", "dim1": 1, "dim2": 1, "encodedStringValue": "36.5"}
+                  },
+                 {
+                    "key": {"procedureRunId": 101, "fieldName": "otherField"},
+                    "value": {"type": "integer", "dim1": 1, "dim2": 1, "encodedStringValue": "16"}
+                  }
                 ]
               }
             }
@@ -129,16 +141,19 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ProcedureComputationResults"
+                "$ref": "#/components/schemas/ComputationKeyValuePairList"
               },
               "example": {
-                "procedureRunId": "1234",
-                "exposureNum": "3", 
-                "computationName": "FindCent",
-                "keyValuePairs": [
-                  { "key": "scalarValue", "type": "float", "dim1": 0, "dim2": 0, "value": "23.4" },
-                  { "key": "stringValue", "type": "string", "dim1": 0, "dim2": 0, "value": "a string" },
-                  { "key": "twoDimValue",  "type": "float", "dim1": 2, "dim2": 3, "value": "{{14.5, 23.3}, {43.2, 456.3}, {12.0, 0.9}}" }
+                "procedureRunId": 101,
+                "keyValuePairList": [
+                  {
+                    "key": {"procedureRunId": 101, "iterationNumber": 1, "computationName": "findCent", "fieldName": "spotType"},
+                    "value": {"type": "double", "dim1": 492, "dim2": 1, "encodedStringValue": "{36.5, 438.2, ..."}
+                  },
+                 {
+                    "key": {"procedureRunId": 101, "iterationNumber": 1, "computationName": "product", "fieldName": "result"},
+                    "value": {"type": "double", "dim1": 1, "dim2": 1, "encodedStringValue": "16.0"}
+                  }
                 ]
               }
             }
@@ -293,22 +308,237 @@
       }
     },
  
-    "/getRemainingSpace": {
+    "/storeRefBeamMap": {
+      "post": {
+        "description": "Stores a ref beam map in the APS-PEAS database for a filter, mask, detector and k-mirror position.",
+        "operationId": "postStoreReferenceMap",
+        "requestBody": {
+          "description": "Stores a reference map in the APS-PEAS database for a detector, filter, mask and k-mirror position",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReferenceMapData"
+              },
+              "example": {
+                "procedureRunId": "1234",
+                "exposureTimestamp": "2045-02-23 11:23:35",
+                "detector": "PSH",
+                "pupilMask": "PH-2-0",
+                "filter": "F890N",
+                "kMirrorPos": "180",
+                "detectorTemp:": "-25.4", 
+                "tiltPlatePosX": "1.3",
+                "tiltPlatePosY": "2.5",
+                "centroidList": [
+                  { "xValue": 107.4, "yValue": 2301.4 },
+                  { "xValue": 560.0, "yValue": 345.9 },
+                  { "xValue": 2561.3, "yValue": 4723.4 }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
+ 
+    "/storeCameraPointingOffset": {
+      "post": {
+        "description": "Stores camera pointing offset data in cache and APS-PEAS database.",
+        "operationId": "postStoreCameraPointingOffset",
+        "requestBody": {
+          "description": "SStores camera pointing offset data in cache and APS-PEAS database",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CameraPointingOffset"
+              },
+              "example": {
+                "procedureRunId": "1234",
+                "pshImageCenter": {"xValue": 107.4, "yValue": 2301.4},
+                "pitImageCenter": {"xValue": 107.4, "yValue": 2301.4},
+                "aptImageCenter": {"xValue": 107.4, "yValue": 2301.4}
+               }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
+      
+    "/storePrCalPitClosedLoopPositions": {
+      "post": {
+        "description": "Stores pupil registration closed loop converged positions of tilt plate, k-Mirror and collimator and PR errors",
+        "operationId": "postStorePrCalPitClosedLoopPositions",
+        "requestBody": {
+          "description": "Stores pupil registration  closed loop converged positions of tilt plate, k-Mirror and collimator and PR errors.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrConvergedPositionsAndErrors"
+              },
+              "example": {
+                "procedureRunId": "1234",
+                "kMirrorPosition": 230.4,
+                "tiltPlatePosition": {"xPosition": 107.4, "yPosition": 2301.4},
+                "collimatorPosition": {"backMotorPosition": 107.4, "frontMotorPosition": 2301.4},
+                "pupilTranslationError": {"xError": 1.2, "yError": 0.4},
+                "pupilRotationError": 0.23,
+                "pupilScaleError": 0.78
+               }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
+  
+      
+      
+      
+   "/loadProcedure": {
       "get": {
-        "description": "Gets the remaining space on the APS Shared disk.",
-        "operationId": "getRemainingSpace",
+        "description": "Creates a new procedure data cache and loads it with data queried from the database.",
+        "operationId": "getLoadProcedure",
         "parameters": [
+          {
+            "name": "procedureRunId",
+            "in": "query",
+            "description": "The procedure run id of the procedure run data to load",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1234"
+          }           
         ],
 
         "responses": {
           "200": {
-            "description": "Remaining space in MB",
+            "description": "Procedure run is loaded successfully"
+          },
+          "400": {
+            "description": "Bad Request.  Arguments provided were not correct or were incomplete",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          },
+          "404": {
+            "description": "No data was found with the provided URI",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
+      
+   "/getProcedureSetupData": {
+      "get": {
+        "description": "Returns all procedure setup values for the given procedure run and iteration index.",
+        "operationId": "getProcedureSetupData",
+        "parameters": [
+          {
+            "name": "procedureRunId",
+            "in": "query",
+            "description": "The procedure run id of the procedure",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1234"
+          },           
+          {
+            "name": "iterationIndex",
+            "in": "query",
+            "description": "The iteration within the procedure that the setup applies to",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1234"
+          }           
+        ],
+
+        "responses": {
+          "200": {
+            "description": "success",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "integer"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SetupKeyValuePair"
+                  }
                 },
-                "example": "5436"
+                "example": [
+                  {
+                    "key": {"iterationNumber": 1, "fieldName": "temperatureSetpoint"},
+                    "value": {"type": "double", "dim1": 1, "dim2": 1, "encodedStringValue": "36.5"}
+                  },
+                  {
+                    "key": {"iterationNumber": 1, "fieldName": "otherField"},
+                    "value": {"type": "integer", "dim1": 1, "dim2": 1, "encodedStringValue": "16"}
+                  }
+                ]                
               }
             }
           },
@@ -322,19 +552,264 @@
                 "example": "Error message."
               }
             }
+          },
+          "404": {
+            "description": "No data was found with the provided URI",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
           }
         }
       }
-    } 
+    },
+      
+   "/getProcedureAsRunConfigurationData": {
+      "get": {
+        "description": "Returns all as-run (user changeable) configuration key/value pairs used for the given procedure run.",
+        "operationId": "getProcedureAsRunConfigurationData",
+        "parameters": [
+          {
+            "name": "procedureRunId",
+            "in": "query",
+            "description": "The procedure run id of the procedure",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1234"
+          }         
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AsRunConfigurationKeyValuePair"
+                  }
+                },
+                "example": [
+                  {
+                    "key": {"fieldName": "scalarValue"},
+                    "value": {"type": "double", "dim1": 1, "dim2": 1, "encodedStringValue": "36.5"}
+                  },
+                  {
+                    "key": {"fieldName": "otherField"},
+                    "value": {"type": "integer", "dim1": 1, "dim2": 1, "encodedStringValue": "16"}
+                  }
+                ]                
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.  Arguments provided were not correct or were incomplete",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          },
+          "404": {
+            "description": "No data was found with the provided URI",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
       
       
+    "/getProcedureResultData": {
+      "post": {
+        "description": "Returns procedure result data for the list of passed keys.",
+        "operationId": "getProcedureResultData",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "procedureRunId",
+                  "computationResultKeys"
+                ],
+                "properties": {
+                  "procedureRunId": {
+                    "type": "integer",
+                    "description": "The procedure run ID of the procedure"
+                  },
+                  "computationResultKeys": {
+                    "type": "array",
+                    "description": "List of keys to retrieve result data for",
+                    "items": {
+                      "$ref": "#/components/schemas/ComputationResultKey"
+                    }
+                  }
+                }
+              },
+              "example": {
+                "procedureRunId": 1234,
+                "computationResultKeys": [
+                  {
+                    "computationName": "findCent",
+                    "fieldName": "scalarValue",
+                    "iterationNumber": 2
+                  },
+                  {
+                    "computationName": "colorStep",
+                    "fieldName": "otherField",
+                    "iterationNumber": 2
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ComputationKeyValuePair"
+                  }
+                },
+                "example": [
+                  {
+                    "key": {
+                      "iterationNumber": 2,
+                      "computationName": "findCent",
+                      "fieldName": "scalarValue"
+                    },
+                    "value": {
+                      "type": "double",
+                      "dim1": 1,
+                      "dim2": 1,
+                      "encodedStringValue": "36.5"
+                    }
+                  },
+                  {
+                    "key": {
+                      "iterationNumber": 2,
+                      "computationName": "colorStep",
+                      "fieldName": "otherField"
+                    },
+                    "value": {
+                      "type": "integer",
+                      "dim1": 1,
+                      "dim2": 1,
+                      "encodedStringValue": "16"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.  Arguments provided were not correct or were incomplete",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Invalid or missing input"
+              }
+            }
+          },
+          "404": {
+            "description": "No data was found with the provided request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "No matching data found"
+              }
+            }
+          }
+        }
+      }
+    }
+
+
+      
+      
+      
+
       
   },
+    
+    
   "components": {
     "schemas": {
-      "NameValuePair": {
+        
+      "ComputationResultKey": {
         "required": [
-          "key",
+          "computationName",
+          "fieldName"
+        ],
+        "type": "object",
+        "properties": {
+          "iterationNumber": {
+            "type": "integer"
+          },
+          "computationName": {
+            "type": "string"
+          },
+          "fieldName": {
+            "type": "string"
+          }
+        }
+      }, 
+        
+      "SetupValueKey": {
+        "required": [
+          "fieldName"
+        ],
+        "type": "object",
+        "properties": {
+          "iterationNumber": {
+            "type": "integer"
+          },
+          "fieldName": {
+            "type": "string"
+          }
+        }
+      }, 
+        
+      "AsRunConfigurationValueKey": {
+        "required": [
+          "fieldName"
+        ],
+        "type": "object",
+        "properties": {
+          "fieldName": {
+            "type": "string"
+          }
+        }
+      }, 
+        
+      "GenericValue": {
+        "required": [
           "type",
           "dim1",
           "dim2",
@@ -342,9 +817,6 @@
         ],
         "type": "object",
         "properties": {
-          "key": {
-            "type": "string"
-          },
           "type": {
             "type": "string"
           },
@@ -358,71 +830,115 @@
             "type": "string"
           }
         }
-      },
-      "NameValuePairList": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/NameValuePair"
-        }
-      },
-      "ProcedureSetupData": {
+      },   
+        
+        
+      "ComputationKeyValuePair": {
         "required": [
-          "keyValuePairs",
-          "iterationIndex",
-          "procedureRunId"
+          "key",
+          "value"
         ],
         "type": "object",
         "properties": {
-          "procedureRunId": {
-            "type": "integer"
+          "key": {
+            "$ref": "#/components/schemas/ComputationResultKey"
           },
-          "iterationIndex": {
-            "type": "integer"
-          },
-          "keyValuePairs": {
-            "$ref": "#/components/schemas/NameValuePairList"
+          "value": {
+            "$ref": "#/components/schemas/GenericValue"
           }
         }
       },
-      "ProcedureComputationResults": {
+        
+      "SetupKeyValuePair": {
         "required": [
-          "keyValuePairs",
-          "procedureRunId", 
-          "exposureNum",
-          "computationName"
+          "key",
+          "value"
         ],
         "type": "object",
         "properties": {
-          "procedureRunId": {
-            "type": "integer"
+          "key": {
+            "$ref": "#/components/schemas/SetupValueKey"
           },
-          "exposureNum": {
-            "type": "integer"
-          },
-          "computationName": {
-            "type": "string"
-          },
-          "keyValuePairs": {
-            "$ref": "#/components/schemas/NameValuePairList"
+          "value": {
+            "$ref": "#/components/schemas/GenericValue"
           }
         }
       },
-      "ProcedureAsRunConfigurationData": {
+        
+      "AsRunConfigurationKeyValuePair": {
         "required": [
-          "keyValuePairs",
-          "procedureRunId"
+          "key",
+          "value"
         ],
         "type": "object",
         "properties": {
-          "procedureRunId": {
-            "type": "integer"
+          "key": {
+            "$ref": "#/components/schemas/AsRunConfigurationValueKey"
           },
-          "keyValuePairs": {
-            "$ref": "#/components/schemas/NameValuePairList"
+          "value": {
+            "$ref": "#/components/schemas/GenericValue"
           }
         }
       },
-       "PeasNotificationEvent": {
+        
+        
+      "ComputationKeyValuePairList": {
+        "required": [
+          "procedureRunId",
+          "keyValuePairList"
+        ],
+        "properties": {
+          "procedureRunId": {
+              "type": "integer"
+          },
+          "keyValuePairList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComputationKeyValuePair"
+            }
+          }
+        }
+      },
+        
+      "SetupKeyValuePairList": {
+        "required": [
+          "procedureRunId",
+          "keyValuePairList"
+        ],
+        "properties": {
+          "procedureRunId": {
+              "type": "integer"
+          },
+          "keyValuePairList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SetupKeyValuePair"
+            }
+          }
+        }
+      },
+        
+      "AsRunConfigurationKeyValuePairList": {
+        "required": [
+          "procedureRunId",
+          "keyValuePairList"
+        ],
+        "properties": {
+          "procedureRunId": {
+              "type": "integer"
+          },
+          "keyValuePairList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AsRunConfigurationKeyValuePair"
+            }
+          }
+        }
+      },
+        
+        
+
+      "PeasNotificationEvent": {
         "required": [
           "procedureRunId",
           "timestamp", 
@@ -446,7 +962,7 @@
         }
       },
     
-        
+ 
         
         
       "Centroid": {
@@ -495,23 +1011,141 @@
         }
       },
         
+      "CameraPointingOffset": {
+        "required": [
+          "procedureRunId",
+          "pshImageCenter",
+          "pitImageCenter",
+          "aptImageCenter"
+         ],
+        "type": "object",
+        "properties": {
+          "procedureRunId": {
+            "type": "integer"
+          },
+          "pshImageCenter": {
+            "$ref": "#/components/schemas/Centroid"
+          },
+          "pitImageCenter": {
+            "$ref": "#/components/schemas/Centroid"
+          },
+          "aptImageCenter": {
+            "$ref": "#/components/schemas/Centroid"
+          }
+        }
+      },
+       
+      "ReferenceMapData": {
+        "required": [
+          "procedureRunId",
+          "exposureTimestamp",
+          "detector",
+          "pupilMask",
+          "filter",
+          "kMirrorPos",
+          "detectorTemp",
+          "tiltPlateX",
+          "tiltPlateY",
+          "centroidList"
+        ],
+        "type": "object",
+        "properties": {
+          "procedureRunId": {
+            "type": "integer"
+          },
+          "exposureTimestamp": {
+            "type": "date-time"
+          },
+          "detector": {
+            "type": "string",
+            "enum": ["PIT", "PSH"]
+          },
+          "pupilMask": {
+            "type": "string",
+            "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
+          },
+          "filter": {
+            "type": "string",
+            "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+          },
+         "kMirrorPos": {
+            "type": "float",
+            "description": "kMirror position in degrees"
+          },
+         "detectorTemp": {
+            "type": "float",
+            "description": "detector temperature in degrees Celsius"
+          },
+          "tiltPlateX": {
+            "type": "float",
+            "description": "Tilt plate X position in mm"
+          },
+          "tiltPlateY": {
+            "type": "float",
+            "description": "Tilt plate Y position in mm"
+          },
+          "centroidList": {
+            "$ref": "#/components/schemas/CentroidList"
+          }
+        }
+      },
         
+      "PrConvergedPositionsAndErrors": {
+        "required": [
+          "procedureRunId",
+          "kMirrorPosition",
+          "tiltPlatePosition",
+          "collimatorPosition",
+          "pupilTranslationError",
+          "pupilRotationError",
+          "pupilScaleError"
+        ],
+        "type": "object",
+        "properties": {
+          "procedureRunId": {
+            "type": "integer"
+          },
+         "kMirrorPos": {
+            "type": "float",
+            "description": "kMirror position in degrees"
+          },
+          "tiltPlateX": {
+            "type": "float",
+            "description": "Tilt plate X position in mm"
+          },
+          "tiltPlateY": {
+            "type": "float",
+            "description": "Tilt plate Y position in mm"
+          },
+          "collimatorFrontMotor": {
+            "type": "float",
+            "description": "Colimator Front Motor position in mm"
+          },
+          "collimatorBackMotor": {
+            "type": "float",
+            "description": "Colimator Back Motor position in mm"
+          },
+          "pupilTranslationErrorX": {
+            "type": "float",
+            "description": "Pupil X translation error in mm at M1"
+          },
+          "pupilTranslationErrorY": {
+            "type": "float",
+            "description": "Pupil Y translation error in mm at M1"
+          },
+          "pupilRotationError": {
+            "type": "float",
+            "description": "Pupil rotation error in degrees"
+          },
+          "pupilScaleError": {
+            "type": "float",
+            "description": "Pupil scale error in percent"
+          }
+        }
+      },
+
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+          
       "QueryResult": {
         "required": [
           "apsFilename",
