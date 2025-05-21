@@ -748,13 +748,391 @@
           }
         }
       }
-    }
+    },
 
+    "/queryProcedureNotifications": {
+      "get": {
+        "description": "Returns a list of prompt/response pairs for all user prompts presented during the procedure filtered by optional time and and severity.",
+        "operationId": "queryProcedureNotifications",
+        "parameters": [
+          {
+            "name": "procedureRunId",
+            "in": "query",
+            "description": "The procedure to search on",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": "1234"
+          },
+          {
+            "name": "startDateRange",
+            "in": "query",
+            "description": "The start date range to filter results",
+            "required": false,
+            "schema": {
+              "type": "date"
+            },
+            "example": "2025-04-03 21:23:01"
+          },
+          {
+            "name": "endDateRange",
+            "in": "query",
+            "description": "The end date range to filter results",
+            "required": false,
+            "schema": {
+              "type": "date"
+            },
+            "example": "2025-04-03"
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "description": "The event severity to filter results",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "example": "error"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "A list of procedure nofication data for the procedure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PeasNotificationResponsePairList"
+                  }
+                },
+                "example": [
+                  {
+                    "timestamp": "2021-05-27 22:24:35",
+                    "severity": "info",
+                    "message": "Informational message text.",
+                    "response": "OK"
+                  },
+                  {
+                    "timestamp": "2021-05-27 12:23:12",
+                    "severity": "error",
+                    "message": "Error message text.",
+                    "response": "ABORT"
+                 }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },  
+      
+    "/getCentroidMap": {
+      "get": {
+        "description": "Returns an exposure centroid map for a successful iteration, or for a specific exposure during a procedure run.",
+        "operationId": "getCentroidMap",
+        "parameters": [
+          {
+            "name": "procedureRunId",
+            "in": "query",
+            "description": "The procedure run to search on",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": "1234"
+          },
+          {
+            "name": "iterationNumber",
+            "in": "query",
+            "description": "The iteration index within the procedure run",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "example": "3"
+          },
+          {
+            "name": "exposureNumber",
+            "in": "query",
+            "description": "The exposure number within the procedure run",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "example": "4"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "A centroid map for the iteration or exposure in the procedure run",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CentroidMapData"
+                },
+                "example": [
+                  {
+                    "procedureRunId": 1234,
+                    "iterationNumber": 4,
+                    "exposureNumber": 5,
+                    "centroidList": [
+                      { "xValue": 107.4, "yValue": 2301.4 },
+                      { "xValue": 560.0, "yValue": 345.9 },
+                      { "xValue": 2561.3, "yValue": 4723.4 }                  
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          },
+          "404": {
+            "description": "No data was found with the provided request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "No matching data found"
+              }
+            }
+          }
+        }
+      }
+    },  
+      
+    "/getMostRecentRefBeamMap": {
+      "get": {
+        "description": "Returns the most recently created reference map for the given mask, filter and K-Mirror Position",
+        "operationId": "getMostRecentRefBeamMap",
+        "parameters": [
+          {
+            "name": "pupilMask",
+            "in": "query",
+            "description": "The PIT pupilMask used for the reference beam exposure",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "PH-2-0"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "The PIT filter used for the reference beam exposure",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "F750W"
+          },
+          {
+            "name": "kMirrorPosition",
+            "in": "query",
+            "description": "The K-Mirror position when the reference beam exposure was taken (degrees)",
+            "required": false,
+            "schema": {
+              "type": "float"
+            },
+            "example": "60.0"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "The reference beam map",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferenceMapData"
+                },
+                "example": {
+                  "procedureRunId": "1234",
+                  "exposureTimestamp": "2045-02-23 11:23:35",
+                  "detector": "PSH",
+                  "pupilMask": "PH-2-0",
+                  "filter": "F890N",
+                  "kMirrorPos": "180",
+                  "detectorTemp:": "-25.4", 
+                  "tiltPlatePosX": "1.3",
+                  "tiltPlatePosY": "2.5",
+                  "centroidList": [
+                    { "xValue": 107.4, "yValue": 2301.4 },
+                    { "xValue": 560.0, "yValue": 345.9 },
+                    { "xValue": 2561.3, "yValue": 4723.4 }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          },
+          "404": {
+            "description": "No data was found with the provided request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "No matching data found"
+              }
+            }
+          }
+        }
+      }
+    },
+      
+    "/getMostRecentCameraPointingOffsets": {
+      "get": {
+        "description": "Returns the most recent calibration procedure results for pointing offsets: APT centroid location and centers of PIT and PSH images. ",
+        "operationId": "getMostRecentCameraPointingOffsets",
+        "parameters": [
+        ],
+
+        "responses": {
+          "200": {
+            "description": "The pointing offset calibration procedure result data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CameraPointingOffset"
+                },
+                "example": {
+                  "procedureRunId": "1234",
+                  "pshImageCenter": {"xValue": 107.4, "yValue": 2301.4},
+                  "pitImageCenter": {"xValue": 107.4, "yValue": 2301.4},
+                  "aptImageCenter": {"xValue": 107.4, "yValue": 2301.4}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          },
+          "404": {
+            "description": "No data was found with the provided request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "No matching data found"
+              }
+            }
+          }
+        }
+      }
+    },
+      
+    "/getMostRecentPupilRegCalibrationResults": {
+      "get": {
+        "description": "Returns the most recent Pupil Registration Calibration procedure results. ",
+        "operationId": "getMostRecentPupilRegCalibrationResults",
+        "parameters": [
+        ],
+
+        "responses": {
+          "200": {
+            "description": "The pupil registration calibration result data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    { "$ref": "#/components/schemas/PrConvergedPositionsAndErrors" },
+                    { "$ref": "#/components/schemas/PitToPshPupilRegistrationOffsets" }
+                  ]
+                },
+                "example": {
+                  "procedureRunId": "1234",
+                  "kMirrorPosition": 230.4,
+                  "tiltPlatePosition": {"xPosition": 107.4, "yPosition": 2301.4},
+                  "collimatorPosition": {"backMotorPosition": 107.4, "frontMotorPosition": 2301.4},
+                  "pupilTranslationError": {"xError": 1.2, "yError": 0.4},
+                  "pupilRotationError": 0.23,
+                  "pupilScaleError": 0.78,
+                  "pitToPshPupilTranslationOffsetX": 22.4,
+                  "pitToPshPupilTranslationOffsetY": 0.1,
+                  "pitToPshPupilRotationOffset": 0.1,
+                  "pitToPshPupilScaleOffset": 0.1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          },
+          "404": {
+            "description": "No data was found with the provided request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "No matching data found"
+              }
+            }
+          }
+        }
+      }
+    }  
+      
+      
+      
+      
 
       
       
       
-
       
   },
     
@@ -937,21 +1315,17 @@
       },
         
         
-
-      "PeasNotificationEvent": {
+      "PeasNotificationEventData": {
         "required": [
-          "procedureRunId",
           "timestamp", 
           "severity",
           "message"
         ],
         "type": "object",
         "properties": {
-          "procedureRunId": {
-            "type": "integer"
-          },
           "timestamp": {
-            "type": "date-time"
+            "type": "string",
+            "format": "date-time"
           },
           "severity": {
             "type": "integer"
@@ -961,8 +1335,56 @@
           }
         }
       },
+        
+      "PeasNotificationEvent": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PeasNotificationEventData"
+          },
+          {
+            "type": "object",
+            "required": ["procedureRunId"],
+            "properties": {
+              "procedureRunId": {
+                "type": "integer"
+              }
+            }
+          }
+        ]
+      },
     
- 
+      "PeasNotificationResponsePair": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PeasNotificationEventData"
+          },
+          {
+            "type": "object",
+            "required": ["notificationResponse"],
+            "properties": {
+              "notificationResponse": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+    
+    
+      "PeasNotificationResponsePairList": {
+        "required": [
+          "notificationResponseList"
+        ],
+        "properties": {
+          "notificationResponseList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeasNotificationResponsePair"
+            }
+          }
+        }
+      },
+  
         
         
       "Centroid": {
@@ -1144,65 +1566,30 @@
         }
       },
 
-        
-          
-      "QueryResult": {
+      "PitToPshPupilRegistrationOffsets": {
         "required": [
-          "apsFilename",
-          "uri",
-          "loRezUri"
+          "pitToPshPupilTranslationOffsetX",
+          "pitToPshPupilTranslationOffsetY",
+          "pitToPshPupilRotationOffset",
+          "pitToPshPupilScaleOffset"
         ],
         "type": "object",
         "properties": {
-          "exposureId": {
-            "type": "string",
-            "description": "the exposure Id of the PSH exposure"
+          "pitToPshPupilTranslationOffsetX": {
+            "type": "float",
+            "description": "Pupil X translation offset in mm at M1"
           },
-          "apsFilename": {
-            "type": "string",
-            "description": "the APS filename of the PSH exposure"
+          "pitToPshPupilTranslationOffsetY": {
+            "type": "float",
+            "description": "Pupil Y translation offset in mm at M1"
           },
-          "uri": {
-            "type": "string",
-            "description": "the uri to access the exposure"
+          "pitToPshPupilRotationOffset": {
+            "type": "float",
+            "description": "Pupil rotation offset in degrees"
           },
-          "loRezUri": {
-            "type": "string",
-            "description": "the uri to access the low-rez exposure image file"
-          }
-        }
-      },
-      "Exposure": {
-        "required": [
-          "utc",
-          "det"
-        ],
-        "type": "object",
-        "properties": {
-          "utc": {
-            "type": "string",
-            "description": "date and time of exposure yyyy-mm-dd hh:mm:ss",
-            "format": "datetime"
-          },
-          "det": {
-            "type": "string",
-            "description": "detector"
-          },
-          "procType": {
-            "type": "string",
-            "description": "procedure type"
-          },
-          "procNum": {
-            "type": "string",
-            "description": "procedure run number within a night session"
-          },
-          "expNum": {
-            "type": "string",
-            "description": "exposure number within a procedure run"
-          },
-          "mask": {
-            "type": "string",
-            "description": "pupil mask"
+          "pitToPshPupilScaleOffset": {
+            "type": "float",
+            "description": "Pupil scale offset in percent"
           }
         }
       }
