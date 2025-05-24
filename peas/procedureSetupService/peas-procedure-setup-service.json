@@ -6,32 +6,35 @@
     "description": "HTTP API to PEAS Procedure Setup service, used for setting up alignment procedure sequences prior to running them"
   },
   "paths": {
-    "/setPosition": {
-      "post": {
-        "description": "Insert/update segment to M1 positions mapping",
-        "operationId": "postSetposition",
-        "requestBody": {
-          "description": "Position of a segment on a given date. The segment id is optional and can be missing if no segment is installed at the position.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SegmentToM1Pos"
-              },
-              "example": {
-                "date": "2021-05-27",
-                "maybeId": "SN-513",
-                "position": "A2"
+    "/getProcedureTypes": {
+      "get": {
+        "description": "Returns the current list of available alignment procedures",
+        "operationId": "getProcedureTypes",
+        "responses": {
+          "200": {
+            "description": "Returns a list of available procedure types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcedureTypesList"
+                },
+                "example": {
+                  "procedureTypeList": [
+                    {
+                      "procedureTypeId": 2,
+                      "procedureTypeName": "Broadband Phasing"
+                    },
+                    {
+                      "procedureTypeId": 1,
+                      "procedureTypeName": "Coarse Tilt Alignment"
+                    }
+                  ]
+                }
               }
             }
           },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          },
           "400": {
-            "description": "",
+            "description": "Bad request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -44,158 +47,64 @@
         }
       }
     },
-    "/setPositions": {
-      "post": {
-        "description": "Set positions of a number of segments on a given date",
-        "operationId": "postSetpositions",
-        "requestBody": {
-          "description": "Holds a number of segment-id assignments for the mirror. A segment id is optional and can be misisng if no segment is installed at the position.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MirrorConfig"
-              },
-              "example": {
-                "date": "2021-05-27",
-                "segments": [
-                  {
-                    "position": "A78",
-                    "segmentId": "SN-483"
-                  },
-                  {
-                    "position": "B78",
-                    "segmentId": "SN-484"
-                  },
-                  {
-                    "position": "D78",
-                    "segmentId": "SN-486"
-                  }
-                ]
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/setAllPositions": {
-      "post": {
-        "description": "Sets all 574 segment positions (A1 to G82) for a given date",
-        "operationId": "postSetallpositions",
-        "requestBody": {
-          "description": "Holds all 574 segment-id assignments (A1 to G8, including spares) for the mirror. A segment id can be null if no segment is installed at the position.",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AllSegmentPositions"
-              },
-              "example": {
-                "allPositions": [
-                  "SN-013",
-                  "SN-450",
-                  "SN-019",
-                  null,
-                  "SN-007",
-                  "etc..."
-                ],
-                "date": "2021-05-27"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/segmentPositions/{segmentId}": {
-      "post": {
-        "description": "Gets a list of segments positions for the given segment id in the given date range",
-        "operationId": "postSegmentpositionsSegmentid",
+    "/getProcedureSetupDefaults": {
+      "get": {
+        "description": "Returns the list of setup parameters for the procedure type populated with default values",
+        "operationId": "GetProcedureSetupDefaults",
         "parameters": [
           {
-            "name": "segmentId",
-            "in": "path",
-            "description": "the segment id to search for",
+            "name": "procedureTypeId",
+            "in": "query",
+            "description": "The procedure type ID",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             },
-            "example": "SN-484"
+            "example": 4
           }
         ],
-        "requestBody": {
-          "description": "The range of dates to search for",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DateRange"
-              },
-              "example": {
-                "from": "2020-10-23",
-                "to": "2021-05-27"
-              }
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
-            "description": "A list of objects mapping segment id to position on a given date",
+            "description": "Returns the list of setup parameters for the procedure type populated with default values",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SegmentToM1Pos"
+                    "$ref": "#/components/schemas/SetupKeyValuePair"
                   }
                 },
                 "example": [
                   {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
+                    "key": {
+                      "iterationNumber": 1,
+                      "fieldName": "filter"
+                    },
+                    "value": {
+                      "type": "string",
+                      "dim1": 1,
+                      "dim2": 1,
+                      "encodedStringValue": "F865N"
+                    }
                   },
                   {
-                    "date": "2021-05-27",
-                    "position": "D78"
+                    "key": {
+                      "iterationNumber": 1,
+                      "fieldName": "pupilMask"
+                    },
+                    "value": {
+                      "type": "string",
+                      "dim1": 1,
+                      "dim2": 1,
+                      "encodedStringValue": "SH-2"
+                    }
                   }
                 ]
               }
             }
           },
           "400": {
-            "description": "",
+            "description": "Bad request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -208,64 +117,74 @@
         }
       }
     },
-    "/segmentIds/{position}": {
-      "post": {
-        "description": "Gets a list of segment ids that were in the given position in the given date range.",
-        "operationId": "postSegmentidsPosition",
+    "/getBbSetupDefaults": {
+      "get": {
+        "description": "Returns filter and phasing step size defaults given the broadband phasing option",
+        "operationId": "getBbSetupDefaults",
         "parameters": [
           {
-            "name": "position",
-            "in": "path",
-            "description": "the segment position to search for (A1 to F82)",
+            "name": "procedureTypeId",
+            "in": "query",
+            "description": "The procedure type ID",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             },
-            "example": "A32"
+            "example": 4
+          },
+          {
+            "name": "phasingOption",
+            "in": "query",
+            "description": "The Broadband phasing option: 1000, 300, 30, etc",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1000
           }
         ],
-        "requestBody": {
-          "description": "A range of dates, from, to, where each date has the format yyyy-mm-dd",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DateRange"
-              },
-              "example": {
-                "from": "2020-10-23",
-                "to": "2021-05-27"
-              }
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
-            "description": "A list of objects mapping segment id to position on a given date",
+            "description": "Returns filter and phasing step size defaults given the broadband phasing option",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SegmentToM1Pos"
+                    "$ref": "#/components/schemas/SetupKeyValuePair"
                   }
                 },
                 "example": [
                   {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
+                    "key": {
+                      "iterationNumber": 1,
+                      "fieldName": "filter"
+                    },
+                    "value": {
+                      "type": "string",
+                      "dim1": 1,
+                      "dim2": 1,
+                      "encodedStringValue": "F865N"
+                    }
                   },
                   {
-                    "date": "2021-05-27",
-                    "position": "D78"
+                    "key": {
+                      "iterationNumber": 1,
+                      "fieldName": "stepSize"
+                    },
+                    "value": {
+                      "type": "float",
+                      "dim1": 1,
+                      "dim2": 1,
+                      "encodedStringValue": "1.0"
+                    }
                   }
                 ]
               }
             }
           },
           "400": {
-            "description": "",
+            "description": "Bad request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -277,119 +196,46 @@
           }
         }
       }
-    },
-    "/newlyInstalledSegments": {
-      "post": {
-        "description": "Returns a list of segments that were installed since the given date.",
-        "operationId": "postNewlyinstalledsegments",
-        "requestBody": {
-          "description": "A date in the format yyyy-mm-dd",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string",
-                "format": "date"
-              },
-              "example": "2020-10-23"
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "A list of objects mapping segment id to position on a given date",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SegmentToM1Pos"
-                  }
-                },
-                "example": [
-                  {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
-                  },
-                  {
-                    "date": "2021-05-27",
-                    "position": "D78"
-                  }
-                ]
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
+    },      
+    "/getProcedureSetupOptions": {
+      "get": {
+        "description": "Returns the list of options for setup values that are chosen from an option list",
+        "operationId": "getProcedureSetupOptions",
+        "parameters": [
+          {
+            "name": "procedureTypeId",
+            "in": "query",
+            "description": "The procedure type ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 4
           }
-        }
-      }
-    },
-    "/segmentExchanges": {
-      "post": {
-        "description": "Returns a list of segment exchanges since the given date.",
-        "operationId": "postSegmentexchanges",
-        "requestBody": {
-          "description": "A date in the format yyyy-mm-dd",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string",
-                "format": "date"
-              },
-              "example": "2020-10-23"
-            }
-          },
-          "required": true
-        },
+        ],
         "responses": {
           "200": {
-            "description": "Holds a MirrorConfig, representing segment changes on different dates.",
+            "description": "Returns a list of option values for each setup parameter whose value is an enumeration",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/MirrorConfig"
+                    "$ref": "#/components/schemas/SetupKeyOptionListPair"
                   }
                 },
                 "example": [
                   {
-                    "date": "2021-01-29",
-                    "segments": [
-                      {
-                        "position": "A78",
-                        "segmentId": "SN-483"
-                      },
-                      {
-                        "position": "B78",
-                        "segmentId": "SN-484"
-                      },
-                      {
-                        "position": "D78",
-                        "segmentId": "SN-486"
-                      }
-                    ]
-                  },
-                  {
-                    "date": "2021-01-30",
-                    "segments": [
-                      {
-                        "position": "A5",
-                        "segmentId": "SN-007"
-                      },
-                      {
-                        "position": "B78"
-                      }
+                    "key": {
+                      "iterationNumber": 1,
+                      "fieldName": "integrationTime"
+                    },
+                    "options": [
+                      {"optionValue": "0.1", "displayOrder": 1},
+                      {"optionValue": "10.0", "displayOrder": 2},
+                      {"optionValue": "20.0", "displayOrder": 3},
+                      {"optionValue": "40.0", "displayOrder": 4},
+                      {"optionValue": "60.0", "displayOrder": 5}
                     ]
                   }
                 ]
@@ -397,7 +243,7 @@
             }
           },
           "400": {
-            "description": "",
+            "description": "Bad request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -410,50 +256,87 @@
         }
       }
     },
-    "/positionsOnDate": {
-      "post": {
-        "description": "Returns the segment positions as they were on the given date.",
-        "operationId": "postPositionsondate",
-        "requestBody": {
-          "description": "A date in the format yyyy-mm-dd",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string",
-                "format": "date"
-              },
-              "example": "2020-10-23"
-            }
+      
+      
+     "/getDetectorsSetupDefaults": {
+      "get": {
+        "description": "Returns gain and integration time for the exposure to be taken for each of the APS detectors.  Takes atmospheric conditions into account.",
+        "operationId": "getDetectorsSetupDefaults",
+        "parameters": [
+          {
+            "name": "procedureTypeId",
+            "in": "query",
+            "description": "The procedure type ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 4
           },
-          "required": true
-        },
+          {
+            "name": "starType",
+            "in": "query",
+            "description": "The star spectral type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "G2V"
+          },
+          {
+            "name": "starMagnitude",
+            "in": "query",
+            "description": "The star magnitude",
+            "required": true,
+            "schema": {
+              "type": "float"
+            },
+            "example": 5.6
+          },
+          {
+            "name": "atmosphericTransparency",
+            "in": "query",
+            "description": "Atmospheric extinction in magnitudes per airmass",
+            "required": false,
+            "schema": {
+              "type": "float"
+            },
+            "example": 0.15
+          }
+        ],
         "responses": {
           "200": {
-            "description": "A list of objects mapping segment id to position on a given date",
+            "description": "A list of Detector gains (lo/hi) and integration times per detector",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SegmentToM1Pos"
+                    "$ref": "#/components/schemas/DetectorGainAndIntTime"
                   }
                 },
                 "example": [
                   {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
+                    "detector": "APT",
+                    "gain": "LOW", 
+                    "integrationTime": "0.08"
                   },
                   {
-                    "date": "2021-05-27",
-                    "position": "D78"
+                    "detector": "PIT",
+                    "gain": "LOW", 
+                    "integrationTime": "6.6"
+                  },
+                  {
+                    "detector": "APT",
+                    "gain": "LOW", 
+                    "integrationTime": "24.5"
                   }
                 ]
               }
             }
           },
           "400": {
-            "description": "",
+            "description": "Bad request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -466,53 +349,55 @@
         }
       }
     },
-    "/segmentPositionOnDate/{segmentId}": {
-      "post": {
-        "description": "Gets the segment position for the given segment id on the given date.",
-        "operationId": "postSegmentpositionondateSegmentid",
-        "parameters": [
-          {
-            "name": "segmentId",
-            "in": "path",
-            "description": "the segment id to search for",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "SN-019"
-          }
-        ],
-        "requestBody": {
-          "description": "A date in the format yyyy-mm-dd",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string",
-                "format": "date"
-              },
-              "example": "2020-10-23"
-            }
-          },
-          "required": true
-        },
+      
+    "/getPupilPositioningDefaults": {
+      "get": {
+        "description": "Returns pupil translation/rotation setup default values, obtained from the most recent on-sky procedure run.",
+        "operationId": "getPupilPositioningDefaults",
         "responses": {
           "200": {
-            "description": "An optional object mapping segment id to position on a given date",
+            "description": "Default positions for mechanisms that move APS pupil",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SegmentToM1Pos"
+                  "type": "object",
+                  "properties": {
+                    "tiltPlateX": {
+                      "type": "float",
+                      "description": "Tilt plate x position in mm at M1"
+                    },
+                    "tiltPlateY": {
+                      "type": "float",
+                      "description": "Tilt plate x position in mm at M1"
+                    },
+                    "kMirrorPosition": {
+                      "type": "float",
+                      "description": "K-Mirror position in degrees"
+                    },
+                    "collimatorBackMotor": {
+                      "type": "float",
+                      "description": "Collimator back motor position in mm"
+                    },
+                    "collimatorFrontMotor": {
+                      "type": "float",
+                      "description": "Collimator front motor position in mm"
+                    }
+                  }
                 },
-                "example": {
-                  "date": "2021-05-27",
-                  "maybeId": "SN-484",
-                  "position": "B78"
-                }
+                "example": [
+                  {
+                    "tiltPlateX": 3.2,
+                    "tiltPlateY": -0.3,
+                    "kMirrorPosition": 63.7, 
+                    "collimatorBackMotor": -4.2,
+                    "collimatorFrontMotor": -0.1
+                  }
+                ]
               }
             }
           },
           "400": {
-            "description": "",
+            "description": "Bad request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -525,53 +410,93 @@
         }
       }
     },
-    "/segmentAtPositionOnDate/{position}": {
-      "post": {
-        "description": "Gets the id of the segment that was installed in the given position on the given date.",
-        "operationId": "postSegmentatpositionondatePosition",
+      
+    "/getProcedureConfigurationDefaults": {
+      "get": {
+        "description": "Returns the list of procedure configuration parameters populated with default values.  If filters are applied, all parameters for the procedure type are returned.",
+        "operationId": "getProcedureConfigurationDefaults",
         "parameters": [
           {
-            "name": "position",
-            "in": "path",
-            "description": "the segment position to search for",
+            "name": "procedureTypeId",
+            "in": "query",
+            "description": "The procedure type ID",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             },
-            "example": "A82"
-          }
-        ],
-        "requestBody": {
-          "description": "A date in the format yyyy-mm-dd",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "string",
-                "format": "date"
-              },
-              "example": "2020-10-23"
-            }
+            "example": 4
           },
-          "required": true
-        },
+          {
+            "name": "pshPupilMask",
+            "in": "query",
+            "description": "Return only parameter defaults for PSH Pupil Mask equal to the passed value",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
+            },
+            "example": "SH-2"
+          },
+          {
+            "name": "pshFilter",
+            "in": "query",
+            "description": "Return only parameter defaults for PSH Filter equal to the passed value",
+            "required": false,
+            "schema": {
+              "type": "string", 
+              "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+            },
+            "example": "F890N"
+          },
+          {
+            "name": "lightSource",
+            "in": "query",
+            "description": "Return only parameter defaults for given light source",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["CALIBRATION", "STIMULUS", "SKY"]
+            },
+            "example": "SKY"
+          },
+          {
+            "name": "broadbandPhasingOption",
+            "in": "query",
+            "description": "Return only parameter defaults for given broadband phasing option",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "enum": [1000, 100, 30]
+            },
+            "example": 100
+          }  
+        ],
         "responses": {
           "200": {
-            "description": "An optional object mapping segment id to position on a given date",
+            "description": "List of procedure configuration parameters in key/value pairs.  When a returned key optional property is absent, the field and value match all values of that property.  More specific property keyed values override more general ones.  In the example provided, the configuration value to display centroid offsets is generally false, except for the specified procedure type, pupil mask and light source.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SegmentToM1Pos"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProcedureConfigurationKeyValuePair"
+                  }
                 },
-                "example": {
-                  "date": "2021-05-27",
-                  "maybeId": "SN-484",
-                  "position": "B78"
-                }
+                "example": [
+                  {
+                    "key": {"procedureTypeId": 1, "pshPupilMask": "SH-2", "lightSource": "SKY", "fieldName": "displayCentroidOffsets"},
+                    "value": {"type": "boolean", "dim1": 1, "dim2": 1, "encodedStringValue": "true"}
+                  },
+                  {
+                    "key": {"fieldName": "displayCentroidOffsets"},
+                    "value": {"type": "integer", "dim1": 1, "dim2": 1, "encodedStringValue": "false"}
+                  }
+                ]                
               }
             }
           },
           "400": {
-            "description": "",
+            "description": "Bad request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -584,99 +509,61 @@
         }
       }
     },
-    "/resetTables": {
+      
+    "/generateProcedureSequence": {
       "post": {
-        "description": "Drops and recreates the database tables (for testing)",
-        "operationId": "postResettables",
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/resetJiraSegmentDataTable": {
-      "post": {
-        "description": "Drops and recreates the JIRA segment database table (for testing)",
-        "operationId": "postResetjirasegmentdatatable",
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/resetSegmentToM1PosTable": {
-      "post": {
-        "description": "Drops and recreates the segment database table (for testing)",
-        "operationId": "postResetsegmenttom1postable",
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/mostRecentChange": {
-      "post": {
-        "description": "Returns the most recent date that segments were changed up to the given date, or the current date, if there are no segments installed yet.",
-        "operationId": "postMostrecentchange",
+        "description": "Returns the sequence template specific to the procedure specified in the request and modified with the setup parameters and execution preferences supplied in the request.",
+        "operationId": "generateProcedureSequence",
         "requestBody": {
-          "description": "A date in the format yyyy-mm-dd",
+          "description": "Procedure Template identifying information and arguments as input",
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
-                "format": "date"
+                "$ref": "#/components/schemas/TemplateAndInputArguments"
               },
-              "example": "2020-10-23"
+              "example": {
+                "procedureTypeId": "1234",
+                "templateVersion": "32",
+                "arguments": [
+                  {
+                    "key": {
+                      "iterationNumber": 1,
+                      "fieldName": "filter"
+                    },
+                    "value": {
+                      "type": "string",
+                      "dim1": 1,
+                      "dim2": 1,
+                      "encodedStringValue": "F865N"
+                    }
+                  },
+                  {
+                    "key": {
+                      "iterationNumber": 1,
+                      "fieldName": "stepSize"
+                    },
+                    "value": {
+                      "type": "float",
+                      "dim1": 1,
+                      "dim2": 1,
+                      "encodedStringValue": "1.0"
+                    }
+                  }            
+                ]
+              }
             }
           },
           "required": true
         },
         "responses": {
           "200": {
-            "description": "A date in the format yyyy-mm-dd",
+            "description": "Serialized JSON string of the generated sequence",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "string",
-                  "format": "date"
-                },
-                "example": "2020-10-23"
+                  "description": "Serialized JSON string of the generated sequence"
+                }
               }
             }
           },
@@ -694,38 +581,147 @@
         }
       }
     },
-    "/nextChange": {
+      
+    "/getInstalledSegments": {
+      "get": {
+        "description": "Returns a list of currently installed segments and recently installed segments.",
+        "operationId": "getInstalledSegments",
+        "responses": {
+          "200": {
+            "description": "List of all 492 mirror cells, associated segment Ids",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InstalledSegment"
+                  }
+                },
+                "example": [
+                  {
+                    "mirrorCell": "A43",
+                    "mirrorCellNumber": 43,
+                    "intalledSegmentId": 342, 
+                    "recentlyInstalled": false
+                  },
+                  {
+                    "mirrorCell": "B2",
+                    "mirrorCellNumber": 84
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loadApsRecognizedSegmentsConfig": {
+      "get": {
+        "description": "Returns the mirror cells that will be recognized by APS algorithms.  Configuration is loaded from the “RecognizedSegments” if timestamp matches the current observing period.",
+        "operationId": "loadApsRecognizedSegmentsConfig",
+        "responses": {
+          "200": {
+            "description": "List of mirror cells or fails if no appropriate config exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "mirrorCellNumber": {
+                        "type": "integer"      
+                      }
+                    },
+                    "required": ["mirrorCellNumber"]
+                  }
+                },
+                "example": [
+                  {
+                    "mirrorCellNumber": 43
+                  },
+                  {
+                    "mirrorCellNumber": 84
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          },
+          "404": {
+            "description": "No data was found with the provided URI",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
+      
+    "/storeApsRecognizedSegmentsConfig": {
       "post": {
-        "description": "Returns the next date after the given one where segments were changed, or the current date, if there are no newer changes.",
-        "operationId": "postNextchange",
+        "description": "Stores the mirror cells that will be recognized by APS algorithms into the “RecognizedSegments” file.",
+        "operationId": "postStoreCentroidMap",
         "requestBody": {
-          "description": "A date in the format yyyy-mm-dd",
+          "description": "List of recognized mirror cell numbers.",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
-                "format": "date"
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "mirrorCellNumber": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": ["mirrorCellNumber"]
+                }
               },
-              "example": "2020-10-23"
+              "example": [
+                {
+                  "mirrorCellNumber": 43
+                },
+                {
+                  "mirrorCellNumber": 84
+                }
+              ]
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "A date in the format yyyy-mm-dd",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string",
-                  "format": "date"
-                },
-                "example": "2020-10-23"
-              }
-            }
+            "description": "Successfully stored recognized segments."
           },
           "400": {
-            "description": "",
+            "description": "Bad request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -738,35 +734,214 @@
         }
       }
     },
-    "/prevChange": {
+    "/loadUsableSubimages": {
+      "get": {
+        "description": "Returns the usable subimages configuration. If the current “UsableSubimages_Session” timestamp matches the current observing period, use that file; otherwise, load the “UsableSubimages” file.",
+        "operationId": "loadUsableSubimages",
+        "parameters": [
+          {
+            "name": "pshPupilMask",
+            "in": "query",
+            "description": "Return only parameter defaults for PSH Pupil Mask equal to the passed value",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
+            },
+            "example": "SH-2"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of usable subimage numbers for the mask.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "subimageNumber": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": ["subimageNumber"]
+                  }
+                },
+                "example": [
+                  {
+                    "subimageNumber": 1
+                  },
+                  {
+                    "subimageNumber": 2
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
+      
+    "/getStarList": {
+      "get": {
+        "description": "Returns a list of stars in the DMS.CAT star catalog that match the search criteria.  For stars that also match DMS.CAT APS Specific Star Catalog RA/DEC ranges and match the supplied Primary Shack-Hartmann pupil mask and Primary Shack-Hartmann filter additional information (mask, filters) is included with each matching result.",
+        "operationId": "getStarList",
+        "parameters": [
+          {
+            "name": "raRangeStart",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "raRangeEnd",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "decRangeStart",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "decRangeEnd",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "minMagnitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "maxMagnitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "pshPupilMask",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
+            }
+          },
+          {
+            "name": "pshFilter",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all stars within ra, dec and magnitude ranges. Depending on the star, pupil mask, and filters may have no values because there were no matching entries in the APS star catalog for these stars",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StarRecord"
+                  }
+                },
+                "example": [
+                  {   
+                    "starId": "HR 509",
+                    "starName": "Tau Ceti",
+                    "magnitude": 7.2,
+                    "color": "white",
+                    "ra": 36.2,
+                    "dec": 298.2,
+                    "specificAttrs": "TBD",
+                    "pshPupilMask": "SH-0", 
+                    "pshFilter": "F890N", 
+                    "pitFilter": "F890N",
+                    "aptFilter": "ND1"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/addApsStarRecord": {
       "post": {
-        "description": "Returns the previous date before the given one where segments were changed, or the first date, if there are no older changes.",
-        "operationId": "postPrevchange",
+        "description": "Creates a new record in the DMS.CAT APS Specific Star Catalog.  Fails (record already exists) if a record for the star, PSH Pupil Mask and PSH Filter already exists.  The record created also contains fields from the /getStarList star attributes, which is obtained by querying DMS standard star catalog (TBD)",
+        "operationId": "addApsStarRecord",
         "requestBody": {
-          "description": "A date in the format yyyy-mm-dd",
+          "description": "Values required to create a record in the DMS.CAT APS Specific Star Catalog",
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
-                "format": "date"
+                "$ref": "#/components/schemas/ApsStarRecord"
               },
-              "example": "2020-10-23"
+              "example": {
+                "starId": "1234",
+                "procedureTypeId": "PH-2-0",
+                "pshFilter": "F890N",
+                "pitFilter": "F890N",
+                "aptFilter": "ND1",
+                "pshIntegrationTime": 34.5,
+                "pitIntegrationTime": 4.6,
+                "aptIntegrationTime": 0.07
+              }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "A date in the format yyyy-mm-dd",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string",
-                  "format": "date"
-                },
-                "example": "2020-10-23"
-              }
-            }
+            "description": "Success"
           },
           "400": {
             "description": "",
@@ -778,339 +953,72 @@
                 "example": "Error message."
               }
             }
-          }
-        }
-      }
-    },
-    "/authEnabled": {
-      "get": {
-        "description": "Returns true if authorization via Keycloak is enabled.",
-        "operationId": "getAuthenabled",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
           },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/currentPositions": {
-      "get": {
-        "description": "Returns the current segment positions.",
-        "operationId": "getCurrentpositions",
-        "responses": {
-          "200": {
-            "description": "A list of objects mapping segment id to position on a given date",
+          "409": {
+            "description": "Conflict. The record already exists.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SegmentToM1Pos"
-                  }
-                },
-                "example": [
-                  {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "A star entry matching values in this request already exists."
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "RECORD_ALREADY_EXISTS"
+                    }
                   },
-                  {
-                    "date": "2021-05-27",
-                    "position": "D78"
-                  }
-                ]
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plannedPositions": {
-      "get": {
-        "description": "Returns the segment positions as defined in the JIRA issues.",
-        "operationId": "getPlannedpositions",
-        "responses": {
-          "200": {
-            "description": "A list of objects mapping segment id to position on a given date",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SegmentToM1Pos"
-                  }
-                },
-                "example": [
-                  {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
-                  },
-                  {
-                    "date": "2021-05-27",
-                    "position": "D78"
-                  }
-                ]
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/segmentData": {
-      "get": {
-        "description": "Gets the JIRA segment data for all segments.",
-        "operationId": "getSegmentdata",
-        "responses": {
-          "200": {
-            "description": "A list of Data scanned from JIRA issues",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/JiraSegmentData"
-                  }
+                  "required": ["error"]
                 }
               }
             }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
           }
         }
       }
     },
-    "/currentSegmentPosition/{segmentId}": {
+      
+    "/applySiteConditions": {
       "get": {
-        "description": "Gets the current segment position for the given segment id.",
-        "operationId": "getCurrentsegmentpositionSegmentid",
+        "description": "Returns star magnitude modified to account for atmospheric transmission.",
+        "operationId": "applySiteConditions",
         "parameters": [
           {
-            "name": "segmentId",
-            "in": "path",
-            "description": "the segment id to search for",
-            "required": true,
+            "name": "starMagnitude",
+            "in": "query",
+            "description": "The star magnitude from the star catalog",
+            "required": false,
             "schema": {
-              "type": "string"
+              "type": "float"
             },
-            "example": "SN-019"
+            "example": 6.3
+          },
+          {
+            "name": "atmosphericTransparency",
+            "in": "query",
+            "description": "Atmospheric extinction in magnitudes per airmass",
+            "required": false,
+            "schema": {
+              "type": "float"
+            },
+            "example": 0.15
           }
         ],
         "responses": {
           "200": {
-            "description": "An optional object mapping segment id to position on a given date",
+            "description": "Star magnitude modified to reflect actual amount of light received.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SegmentToM1Pos"
+                  "type": "float"
                 },
-                "example": {
-                  "date": "2021-05-27",
-                  "maybeId": "SN-484",
-                  "position": "B78"
-                }
+                "example": 9.2
               }
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/currentSegmentAtPosition/{position}": {
-      "get": {
-        "description": "Gets the id of the segment currently in the given position.",
-        "operationId": "getCurrentsegmentatpositionPosition",
-        "parameters": [
-          {
-            "name": "position",
-            "in": "path",
-            "description": "the segment position to search for",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "A82"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "An optional object mapping segment id to position on a given date",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SegmentToM1Pos"
-                },
-                "example": {
-                  "date": "2021-05-27",
-                  "maybeId": "SN-484",
-                  "position": "B78"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/availableSegmentIdsForPos/{position}": {
-      "get": {
-        "description": "Gets a list of segment-ids that can be installed at the given position.",
-        "operationId": "getAvailablesegmentidsforposPosition",
-        "parameters": [
-          {
-            "name": "position",
-            "in": "path",
-            "description": "the segment position to search for",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "A82"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "example": [
-                  "SN-517"
-                ]
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          }
-        }
-      }
-    },
-    "/allSegmentIds/{position}": {
-      "get": {
-        "description": "Gets a list of segments that were in the given position.",
-        "operationId": "getAllsegmentidsPosition",
-        "parameters": [
-          {
-            "name": "position",
-            "in": "path",
-            "description": "the segment position to search for",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "A82"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A list of objects mapping segment id to position on a given date",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SegmentToM1Pos"
-                  }
-                },
-                "example": [
-                  {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
-                  },
-                  {
-                    "date": "2021-05-27",
-                    "position": "D78"
-                  }
-                ]
-              }
-            }
-          },
-          "400": {
-            "description": "",
+            "description": "Bad request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1123,177 +1031,322 @@
         }
       }
     }
+
+
+
+
+      
   },
   "components": {
     "schemas": {
-      "SegmentToM1Pos": {
-        "required": [
-          "date",
-          "position"
-        ],
+      "ProcedureType": {
+        "required": ["procedureTypeId", "procedureTypeName"],
         "type": "object",
         "properties": {
-          "date": {
-            "type": "string",
-            "description": "date of record in the format yyyy-mm-dd",
-            "format": "date"
-          },
-          "maybeId": {
-            "type": "string",
-            "description": "the segment id, if the segment is present"
-          },
-          "position": {
-            "type": "string",
-            "description": "position of segment (For example: A32, B19, F82)"
-          }
-        }
-      },
-      "MirrorConfig": {
-        "required": [
-          "date"
-        ],
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "description": "the date for the configuration in the format yyyy-mm-dd",
-            "format": "date"
-          },
-          "segments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SegmentConfig"
-            },
-            "description": "list of segment assignments"
-          }
-        }
-      },
-      "SegmentConfig": {
-        "required": [
-          "position"
-        ],
-        "type": "object",
-        "properties": {
-          "position": {
-            "type": "string",
-            "description": "segment poosition (A1 to G82)"
-          },
-          "segmentId": {
-            "type": "string",
-            "description": "the segment id, if the segment is present"
-          }
-        }
-      },
-      "AllSegmentPositions": {
-        "required": [
-          "date"
-        ],
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "description": "the date corresponding to the positions",
-            "format": "date"
-          },
-          "allPositions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "list of all 574 segment positions from A1 to G82. Missing segments have the value null."
-          }
-        }
-      },
-      "DateRange": {
-        "required": [
-          "from",
-          "to"
-        ],
-        "type": "object",
-        "properties": {
-          "from": {
-            "type": "string",
-            "description": "start of the date range in the format yyyy-mm-dd",
-            "format": "date"
-          },
-          "to": {
-            "type": "string",
-            "description": "end of the date range in the format yyyy-mm-dd",
-            "format": "date"
-          }
-        }
-      },
-      "JiraSegmentData": {
-        "required": [
-          "position",
-          "segmentId",
-          "jiraKey",
-          "jiraUri",
-          "sector",
-          "segmentType",
-          "partNumber",
-          "originalPartnerBlankAllocation",
-          "itemLocation",
-          "riskOfLoss",
-          "components",
-          "status",
-          "workPackages",
-          "acceptanceCertificates",
-          "acceptanceDateBlank",
-          "shippingAuthorizations"
-        ],
-        "type": "object",
-        "properties": {
-          "position": {
-            "type": "string"
-          },
-          "segmentId": {
-            "type": "string"
-          },
-          "jiraKey": {
-            "type": "string"
-          },
-          "jiraUri": {
-            "type": "string"
-          },
-          "sector": {
+          "procedureTypeId": {
             "type": "integer"
           },
-          "segmentType": {
-            "type": "integer"
-          },
-          "partNumber": {
-            "type": "string"
-          },
-          "originalPartnerBlankAllocation": {
-            "type": "string"
-          },
-          "itemLocation": {
-            "type": "string"
-          },
-          "riskOfLoss": {
-            "type": "string"
-          },
-          "components": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "workPackages": {
-            "type": "string"
-          },
-          "acceptanceCertificates": {
-            "type": "string"
-          },
-          "acceptanceDateBlank": {
-            "type": "string"
-          },
-          "shippingAuthorizations": {
+          "procedureTypeName": {
             "type": "string"
           }
         }
-      }
+      },
+      "DetectorGainAndIntTime": {
+        "required": ["detector", "gain", "integrationTime"],
+        "type": "object",
+        "properties": {
+          "Detector": {
+            "type": "string",
+            "enum": ["APT", "PIT", "PSH"]
+          },
+          "gain": {
+            "type": "string",
+            "enum": ["HIGH", "LOW"]
+          },
+          "integrationTime": {
+              "type": "float"
+          }    
+        }
+      },
+      "ProcedureTypesList": {
+        "type": "object",
+        "required": ["procedureTypeList"],
+        "properties": {
+          "procedureTypeList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProcedureType"
+            }
+          }
+        }
+      },
+
+      "SetupValueKey": {
+        "required": ["fieldName"],
+        "type": "object",
+        "properties": {
+          "iterationNumber": {
+            "type": "integer"
+          },
+          "fieldName": {
+            "type": "string"
+          }
+        }
+      },
+      "ProcedureConfigurationValueKey": {
+        "required": ["fieldName"],
+        "type": "object",
+        "properties": {
+          "procedureTypeId": {
+            "type": "integer"
+          },
+          "pshPupilMask": {
+            "type": "string",
+            "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
+          },
+          "pshFilter": {
+            "type": "string",
+            "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+          },
+          "lightSource": {
+            "type": "integer",
+            "enum": ["CALIBRATION", "STIMULUS", "SKY"]
+          },
+          "fieldName": {
+            "type": "string"
+          }
+        }
+      },
+      "GenericValue": {
+        "required": ["type", "dim1", "dim2", "encodedStringValue"],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "dim1": {
+            "type": "integer"
+          },
+          "dim2": {
+            "type": "integer"
+          },
+          "encodedStringValue": {
+            "type": "string"
+          }
+        }
+      },
+      "OptionValue": {
+        "required": ["optionValue", "displayOrder"],
+        "type": "object",
+        "properties": {
+          "optionValue": {
+            "type": "string"
+          },
+          "displayOrder": {
+            "type": "integer"
+          }
+        }
+      },
+      "SetupKeyValuePair": {
+        "required": ["key", "value"],
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/SetupValueKey"
+          },
+          "value": {
+            "$ref": "#/components/schemas/GenericValue"
+          }
+        }
+      },
+      "SetupKeyOptionListPair": {
+        "required": ["key", "options"],
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/SetupValueKey"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OptionValue"
+            }
+          }
+        }
+      }, 
+      "ProcedureConfigurationKeyValuePair": {
+        "required": ["key", "value"],
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/ProcedureConfigurationValueKey"
+          },
+          "value": {
+            "$ref": "#/components/schemas/GenericValue"
+          }
+        }
+      },
+        
+      "TemplateAndInputArguments": {
+        "required": ["procedureType", "arguments"],
+        "type": "object",
+        "properties": {
+          "procedureTypeId": {
+            "type": "integer"
+          },
+          "templateVersion": {
+              "type": "integer",
+              "description": "optional parameter for the template version, latest used if parameter is absent."
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SetupKeyValuePair"
+            }
+          }
+        }
+      },
+        
+      "InstalledSegment": {
+        "required": ["mirrorCell", "mirrorCellNumber"],
+        "type": "object",
+        "properties": {
+          "mirrorCell": {
+            "type": "string"
+          },
+          "mirrorCellNumber": {
+            "type": "integer"
+          },
+          "installedSegmentId": {
+            "type": "integer",
+            "description": "when property is absent, no segment is installed in mirror cell"
+          },
+          "recentlyInstalled": {
+            "type": "boolean",
+            "description": "when property is absent, no segment is installed in mirror cell"
+          }
+        }
+      },
+        
+        
+      "ApsStarRecord": {
+        "required": ["starId", "pshPupilMask", "pshFilter", "pitFilter", "aptFilter", "pshIntegrationTime", "pitIntegrationTime", "aptIntegrationTime"],
+        "type": "object",
+        "properties": {
+          "starId": {
+            "type": "string"
+          },
+          "pshPupilMask": {
+            "type": "string",
+            "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
+          },
+          "pshFilter": {
+            "type": "string",
+            "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+          },
+          "pitFilter": {
+            "type": "string",
+            "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+          },
+          "aptFilter": {
+            "type": "string",
+            "enum": ["ND1", "ND2", "NB589", "OPEN"]
+          },
+          "pshIntegrationTime": {
+            "type": "float",
+            "description": "integration time in sec"
+          },
+          "pitIntegrationTime": {
+            "type": "float",
+            "description": "integration time in sec"
+          },
+          "aptIntegrationTime": {
+            "type": "float",
+            "description": "integration time in sec"
+          }
+        }
+      },
+           
+        
+      "StarSearchFilters": {
+        "required": ["raRangeStart", "raRangeEnd", "decRangeStart", "decRangeEnd", "minMagnitude", "maxMagnitude", "pshPupilMask", "pshFilter"],
+        "type": "object",
+        "properties": {
+          "raRangeStart": {
+            "type": "float"
+          },
+          "raRangeEnd": {
+            "type": "float"
+          },
+          "decRangeStart": {
+            "type": "float"
+          },
+          "decRangeEnd": {
+            "type": "float"
+          },
+          "minMagnitude": {
+            "type": "float"
+          },
+          "maxMagnitude": {
+            "type": "float"
+          },
+          "pshPupilMask": {
+            "type": "string",
+            "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
+          },
+          "pshFilter": {
+            "type": "string",
+            "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+          }
+        }
+      },
+        
+      "StarRecord": {
+        "required": ["starId", "starName", "magnitude", "color", "ra", "dec", "specificAttrs", "hourAngle", "elevation", "timeToLimit"],
+        "type": "object",
+        "properties": {
+          "starId": {
+            "type": "string"
+          },
+          "starName": {
+            "type": "string"
+          },
+          "magnitude": {
+            "type": "float"
+          },
+          "color": {
+            "type": "string"
+          },
+          "ra": {
+            "type": "float"
+          },
+          "dec": {
+            "type": "float"
+          },
+          "specificAttrs": {
+            "type": "string"
+          },
+          "pshPupilMask": {
+            "type": "string",
+            "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
+          },
+          "pshFilter": {
+            "type": "string",
+            "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+          },
+          "pitFilter": {
+            "type": "string",
+            "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+          },
+          "aptFilter": {
+            "type": "string",
+            "enum": ["ND1", "ND2", "NB589", "OPEN"]
+          }
+
+        }
+      }        
+        
     }
   }
 }
+
