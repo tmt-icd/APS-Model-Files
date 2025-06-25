@@ -193,7 +193,10 @@
               "example": {
                 "procedureRunId": "1234",
                 "timestamp": "2045-02-23 11:23:35", 
-                "severity": "Info",
+                "notificationType": "MESSAGE",
+                "dialogKey": "msgDialog1",
+                "helpKey": "helpKey23",
+                "severity": "INFO",
                 "message": "An informational message"
               }
             }
@@ -811,13 +814,19 @@
                 "example": [
                   {
                     "timestamp": "2021-05-27 22:24:35",
-                    "severity": "info",
+                    "notificationType": "MESSAGE",
+                    "dialogKey": "msgDialog1",
+                    "helpKey": "helpKey23",
+                    "severity": "INFO",
                     "message": "Informational message text.",
                     "response": "OK"
                   },
                   {
                     "timestamp": "2021-05-27 12:23:12",
-                    "severity": "error",
+                    "notificationType": "MESSAGE",
+                    "dialogKey": "msgDialog3",
+                    "helpKey": "helpKey24",
+                    "severity": "ERROR",
                     "message": "Error message text.",
                     "response": "ABORT"
                  }
@@ -1313,6 +1322,10 @@
           }
         }
       },
+
+
+        
+        
         
         
       "PeasNotificationEventData": {
@@ -1327,8 +1340,20 @@
             "type": "string",
             "format": "date-time"
           },
+    
+          "notificationType": {
+            "type": "string",
+            "enum": ["MESSAGE", "USER_PROMPT", "VIZ_DISPLAY"]
+          },
+          "dialogKey": {
+            "type": "string"
+          },
+          "helpKey": {
+            "type": "string"
+          },
           "severity": {
-            "type": "integer"
+            "type": "integer",
+            "enum": ["INFO", "WARN", "ERROR", "UNHANDLED_ERROR"]
           },
           "message": {
             "type": "string"

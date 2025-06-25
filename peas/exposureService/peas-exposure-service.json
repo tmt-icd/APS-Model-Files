@@ -51,7 +51,7 @@
 
  
  
-    "/queryPshExposures": {
+    "/queryPshExposureFiles": {
       "get": {
        "description": "Queries the APS-PEAS database for Primary Shack-Hartmann exposure Ids given the filter criteria.  Returns PSH exposure ids and APS FITS filesname for the search criteria.",
         "operationId": "getPshExposures",
@@ -158,10 +158,14 @@
                     "$ref": "#/components/schemas/QueryResult"
                   }
                 },
-                "example": {
-                  "exposureId": "2021-05-27_rest_tbd",
-                  "filename": "2021-05-27_09:06:56_PSH_BBP_14_09_PH-2-0"
-                }
+                "example": [
+                  {
+                    "exposureId": "2021-05-27_rest_tbd",
+                    "apsFilename": "2021-05-27_09:06:56_PSH_BBP_14_09_PH-2-0",
+                    "uri": "file:///APSShare/PSH/2021-05-27_09:06:56_PSH_BBP_14_09_PH-2-0.FITS",  
+                    "loRezUri": "file:///APSShare/PSH/2021-05-27_09:06:56_PSH_BBP_14_09_PH-2-0.png"  
+                  }
+                ]
               }
             }
           },
@@ -250,13 +254,10 @@
                 },
                 "example": [
                   {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
-                  },
-                  {
-                    "date": "2021-05-27",
-                    "position": "D78"
+                    "exposureId": "",
+                    "apsFilename": "2021-05-27_09:06:56_PIT_PH-2-0",
+                    "uri": "file:///APSShare/PIT/22021-05-27_09:06:56_PIT_PH-2-0.FITS",  
+                    "loRezUri": "file:///APSShare/PIT/2021-05-27_09:06:56_PIT_PH-2-0.png"  
                   }
                 ]
               }
@@ -337,13 +338,10 @@
                 },
                 "example": [
                   {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
-                  },
-                  {
-                    "date": "2021-05-27",
-                    "position": "D78"
+                    "exposureId": "",
+                    "apsFilename": "2021-05-27_09:06:56_APT",
+                    "uri": "file:///APSShare/PIT/22021-05-27_09:06:56_APT.FITS",  
+                    "loRezUri": "file:///APSShare/PIT/2021-05-27_09:06:56_APT.png"  
                   }
                 ]
               }
@@ -423,7 +421,7 @@
 
         "responses": {
           "200": {
-            "description": "A list of APS APT exposure filenames",
+            "description": "A list of APS manual exposure filenames",
             "content": {
               "application/json": {
                 "schema": {
@@ -434,13 +432,10 @@
                 },
                 "example": [
                   {
-                    "date": "2021-05-27",
-                    "maybeId": "SN-484",
-                    "position": "B78"
-                  },
-                  {
-                    "date": "2021-05-27",
-                    "position": "D78"
+                    "exposureId": "",
+                    "apsFilename": "2021-05-27_09:06:56_APT",
+                    "uri": "file:///APSShare/Manual/22021-05-27_09:06:56_APT.FITS",  
+                    "loRezUri": "file:///APSShare/Manual/2021-05-27_09:06:56_APT.png"  
                   }
                 ]
               }
@@ -465,16 +460,6 @@
         "description": "Retrieves the FITS file data from APS shared disk or if not present, retrieves from DMS.ENG ancillary file store.",
         "operationId": "retriveFitsFile",
         "parameters": [
-          {
-            "name": "uri",
-            "in": "query",
-            "description": "The unique identifier for the fits file",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "1234"
-          },
           {
             "name": "apsFilename",
             "in": "query",
@@ -530,16 +515,6 @@
         "description": "Retrieves the low resolution (png or equivalent) image format file data for the given PSH or PIT FITS image.  Creates the low resolution image if it does not exist. If the FTS file is not on the APS shared disk, it is retrieved from the DMS.ENG ancillary file store.",
         "operationId": "retriveLowResImage",
         "parameters": [
-          {
-            "name": "uri",
-            "in": "query",
-            "description": "The unique identifier for the file",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "1234"
-          },
           {
             "name": "apsFilename",
             "in": "query",
