@@ -803,6 +803,7 @@
             "name": "raRangeStart",
             "in": "query",
             "required": true,
+            "description": "RA search range start in degrees",
             "schema": {
               "type": "number",
               "format": "float"
@@ -812,6 +813,7 @@
             "name": "raRangeEnd",
             "in": "query",
             "required": true,
+            "description": "RA search range end in degrees",
             "schema": {
               "type": "number",
               "format": "float"
@@ -821,6 +823,7 @@
             "name": "decRangeStart",
             "in": "query",
             "required": true,
+            "description": "DEC search range start in degrees",
             "schema": {
               "type": "number",
               "format": "float"
@@ -830,6 +833,7 @@
             "name": "decRangeEnd",
             "in": "query",
             "required": true,
+            "description": "DEC search range end in degrees",
             "schema": {
               "type": "number",
               "format": "float"
@@ -891,7 +895,7 @@
                     "color": "white",
                     "ra": 36.2,
                     "dec": 298.2,
-                    "specificAttrs": "TBD",
+                    "specificAttrs": "BINARY",
                     "pshPupilMask": "SH-0", 
                     "pshFilter": "F890N", 
                     "pitFilter": "F890N",
@@ -1324,7 +1328,8 @@
             "type": "float"
           },
           "specificAttrs": {
-            "type": "string"
+            "type": "string",
+            "enum": ["VARIABLE", "BINARY", "NONE"]
           },
           "pshPupilMask": {
             "type": "string",
