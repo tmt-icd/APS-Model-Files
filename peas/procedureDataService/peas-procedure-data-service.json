@@ -179,25 +179,26 @@
       }
     },
       
-    "/storePeasNotificationEvent": {
+    "/storeApsProcedureEvent": {
       "post": {
-        "description": "Stores a PEAS notification event message in cache and APS-PEAS database.",
-        "operationId": "postStorePeasNotificationEvent",
+        "description": "Stores an APS Procedure event message in cache and APS-PEAS database.",
+        "operationId": "postStoreApsProcedureEvent",
         "requestBody": {
-          "description": "Stores notification event message in cache and APS-PEAS database.",
+          "description": "Stores APS Procedure event message in cache and APS-PEAS database.",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PeasNotificationEvent"
+                "$ref": "#/components/schemas/ApsProcedureEvent"
               },
               "example": {
                 "procedureRunId": "1234",
                 "timestamp": "2045-02-23 11:23:35", 
-                "notificationType": "MESSAGE",
+                "type": "WARN_MESSAGE",
                 "dialogKey": "msgDialog1",
                 "helpKey": "helpKey23",
-                "severity": "INFO",
-                "message": "An informational message"
+                "messageId": "msgWarn24",
+                "response": "NONE",
+                "responseTimestamp": "2045-02-23 11:23:35"
               }
             }
           },
@@ -753,10 +754,10 @@
       }
     },
 
-    "/queryProcedureNotifications": {
+    "/queryApsProcedureEvents": {
       "get": {
         "description": "Returns a list of prompt/response pairs for all user prompts presented during the procedure filtered by optional time and and severity.",
-        "operationId": "queryProcedureNotifications",
+        "operationId": "queryProcedureEvents",
         "parameters": [
           {
             "name": "procedureRunId",
@@ -789,47 +790,50 @@
             "example": "2025-04-03"
           },
           {
-            "name": "severity",
+            "name": "type",
             "in": "query",
-            "description": "The event severity to filter results",
+            "description": "The event type to filter results",
             "required": false,
             "schema": {
-              "type": "integer"
+              "type": "string",
+              "enum": ["INFO_MESSAGE", "WARN_MESSAGE", "USER_PROMPT", "VIZ_DISPLAY"]
             },
-            "example": "error"
+            "example": "USER_PROMPT"
           }
         ],
 
         "responses": {
           "200": {
-            "description": "A list of procedure nofication data for the procedure",
+            "description": "A list of aps procedure events and responses matching search criteria",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/PeasNotificationResponsePairList"
+                    "$ref": "#/components/schemas/ApsProcedureEventList"
                   }
                 },
                 "example": [
                   {
+                    "procedureRunId": "1234",
                     "timestamp": "2021-05-27 22:24:35",
-                    "notificationType": "MESSAGE",
+                    "type": "WARN_MESSAGE",
                     "dialogKey": "msgDialog1",
                     "helpKey": "helpKey23",
-                    "severity": "INFO",
-                    "message": "Informational message text.",
-                    "response": "OK"
+                    "messageId": "msgWarn12",
+                    "response": "OK",
+                    "responseTimestamp": "2021-05-27 22:24:50"
                   },
                   {
-                    "timestamp": "2021-05-27 12:23:12",
-                    "notificationType": "MESSAGE",
-                    "dialogKey": "msgDialog3",
-                    "helpKey": "helpKey24",
-                    "severity": "ERROR",
-                    "message": "Error message text.",
-                    "response": "ABORT"
-                 }
+                    "procedureRunId": "1234",
+                    "timestamp": "2021-05-27 22:27:21",
+                    "type": "USER_PROMPT",
+                    "dialogKey": "msgDialog23",
+                    "helpKey": "helpKey2",
+                    "messageId": "msgPrompt24",
+                    "response": "SEND_CMDS",
+                    "responseTimestamp": "2021-05-27 22:27:43"
+                  }
                 ]
               }
             }
@@ -1328,11 +1332,12 @@
         
         
         
-      "PeasNotificationEventData": {
+      "ApsProcedureEventData": {
         "required": [
           "timestamp", 
-          "severity",
-          "message"
+          "type",
+          "messageId", 
+          "dialogKey"
         ],
         "type": "object",
         "properties": {
@@ -1340,10 +1345,9 @@
             "type": "string",
             "format": "date-time"
           },
-    
-          "notificationType": {
+          "type": {
             "type": "string",
-            "enum": ["MESSAGE", "USER_PROMPT", "VIZ_DISPLAY"]
+            "enum": ["INFO_MESSAGE", "WARN_MESSAGE", "USER_PROMPT", "VIZ_DISPLAY"]
           },
           "dialogKey": {
             "type": "string"
@@ -1351,20 +1355,23 @@
           "helpKey": {
             "type": "string"
           },
-          "severity": {
-            "type": "integer",
-            "enum": ["INFO", "WARN", "ERROR", "UNHANDLED_ERROR"]
-          },
-          "message": {
+          "messageId": {
             "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "responseTimestamp": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
         
-      "PeasNotificationEvent": {
+      "ApsProcedureEvent": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/PeasNotificationEventData"
+            "$ref": "#/components/schemas/ApsProcedureEventData"
           },
           {
             "type": "object",
@@ -1376,41 +1383,15 @@
             }
           }
         ]
-      },
-    
-      "PeasNotificationResponsePair": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/PeasNotificationEventData"
-          },
-          {
-            "type": "object",
-            "required": ["notificationResponse"],
-            "properties": {
-              "notificationResponse": {
-                "type": "string"
-              }
-            }
-          }
-        ]
-      },
-    
-    
-      "PeasNotificationResponsePairList": {
-        "required": [
-          "notificationResponseList"
-        ],
-        "properties": {
-          "notificationResponseList": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PeasNotificationResponsePair"
-            }
-          }
+      },  
+        
+      "ApsProcedureEventList": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ApsProcedureEvent"
         }
       },
-  
-        
+
         
       "Centroid": {
         "required": [
