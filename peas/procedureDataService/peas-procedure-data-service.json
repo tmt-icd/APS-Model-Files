@@ -1084,8 +1084,27 @@
         "description": "Returns the most recent Pupil Registration Calibration procedure results. ",
         "operationId": "getMostRecentPupilRegCalibrationResults",
         "parameters": [
+          {
+            "name": "pupilMask",
+            "in": "query",
+            "description": "The PIT pupilMask used for the pupil registration calibration",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "PH-2-0"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "The PIT filter used for the pupil registration calibration",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "F750W"
+          }
         ],
-
         "responses": {
           "200": {
             "description": "The pupil registration calibration result data",
