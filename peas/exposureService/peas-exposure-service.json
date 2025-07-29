@@ -565,7 +565,48 @@
           }
         }
       }
-    },       
+    },  
+    "/setExposureRejectedFlag": {
+      "post": {
+        "description": "Marks the exposure as rejected from being used in procedure analysis functions",
+        "operationId": "setExposureRejectedFlag",
+        "requestBody": {
+          "description": "Requests the exposure service to set the exposure as rejected from analysis.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string"
+                  }
+                },
+                "required": ["filename"]
+              },
+              "example": {
+                  "filename": "2045-12-12_12:23:33_APT_F750W"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },      
     "/getRemainingSpace": {
       "get": {
         "description": "Gets the remaining space on the APS Shared disk.",
