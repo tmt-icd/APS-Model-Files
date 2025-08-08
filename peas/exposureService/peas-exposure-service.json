@@ -509,7 +509,51 @@
           }
         }
       }
+    },    
+    "/getMostRecentPshExposureData": {
+      "get": {
+        "description": "Retrieves the most recently taken PSH exposure data from APS shared disk.",
+        "operationId": "getMostRecentPshExposureData",
+
+        "responses": {
+          "200": {
+            "description": "File is located and exposure data returned successfully",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                },
+                "example": "binary exposure data returned"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          },
+          "404": {
+            "description": "No file was found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
     },     
+
     "/retrieveLowResImage": {
       "get": {
         "description": "Retrieves the low resolution (png or equivalent) image format file data for the given PSH or PIT FITS image.  Creates the low resolution image if it does not exist. If the FTS file is not on the APS shared disk, it is retrieved from the DMS.ENG ancillary file store.",
