@@ -1032,7 +1032,7 @@
     },
     "/getMostRecentRefBeamMapMetaData": {
       "get": {
-        "description": "Returns the most recently created reference map for the given mask, filter and K-Mirror Position",
+        "description": "Returns the most recently created reference map meta data for the given mask, filter and K-Mirror Position",
         "operationId": "getMostRecentRefBeamMapMetaData",
         "parameters": [
           {
@@ -1069,7 +1069,7 @@
 
         "responses": {
           "200": {
-            "description": "The reference beam map",
+            "description": "The reference beam map meta data",
             "content": {
               "application/json": {
                 "schema": {
