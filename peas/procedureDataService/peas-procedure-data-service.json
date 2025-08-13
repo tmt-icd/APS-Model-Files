@@ -939,40 +939,134 @@
       }
     },  
       
-    "/getMostRecentRefBeamMap": {
+    "/getRefBeamMap": {
       "get": {
-        "description": "Returns the most recently created reference map for the given mask, filter and K-Mirror Position",
+        "description": "Returns the non-expired reference map for the given mask, filter and K-Mirror Position closest to the current K-Mirror position",
         "operationId": "getMostRecentRefBeamMap",
         "parameters": [
           {
+            "name": "detector",
+            "in": "query",
+            "description": "The detector to search on",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["PIT", "PSH"]
+            },
+            "example": "PSH"
+          },
+          {
             "name": "pupilMask",
             "in": "query",
-            "description": "The PIT pupilMask used for the reference beam exposure",
-            "required": false,
+            "description": "The current pupilMask used to select the reference beam map",
+            "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
             },
             "example": "PH-2-0"
           },
           {
             "name": "filter",
             "in": "query",
-            "description": "The PIT filter used for the reference beam exposure",
-            "required": false,
+            "description": "The current filter used to select the reference beam map",
+            "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+
             },
             "example": "F750W"
           },
           {
-            "name": "kMirrorPosition",
+            "name": "currentKMirrorPosition",
             "in": "query",
-            "description": "The K-Mirror position when the reference beam exposure was taken (degrees)",
-            "required": false,
+            "description": "The current K-Mirror position in degrees",
+            "required": true,
             "schema": {
               "type": "float"
             },
             "example": "60.0"
+          },
+          {
+            "name": "kMirrorDelta",
+            "in": "query",
+            "description": "The delta from the current position + or - (in degrees), from which to select reference beams",
+            "required": true,
+            "schema": {
+              "type": "float"
+            },
+            "example": "20.0"
+          },
+          {
+            "name": "currentTimestamp",
+            "in": "query",
+            "description": "The currentTimestamp",
+            "required": true,
+            "schema": {
+              "type": "float"
+            },
+            "example": "2045-02-23 11:23:35"
+          },
+          {
+            "name": "expirationTimeDelta",
+            "in": "query",
+            "description": "The time over which a reference beam is considered expired in seconds",
+            "required": true,
+            "schema": {
+              "type": "float"
+            },
+            "example": "86400"
+          },
+          {
+            "name": "currentDetectorTemperature",
+            "in": "query",
+            "description": "The current detector temperature in degrees(C)",
+            "required": true,
+            "schema": {
+              "type": "float"
+            },
+            "example": "-25.4"
+          },
+          {
+            "name": "expirationTemperatureDelta",
+            "in": "query",
+            "description": "The deviation from reference beam taken temperature over or under which a reference beam is considered expired in degrees(C)",
+            "required": true,
+            "schema": {
+              "type": "float"
+            },
+            "example": "3.5"
+          },
+          {
+            "name": "tiltPlateX",
+            "in": "query",
+            "description": "The current tilt plate x position in mm",
+            "required": true,
+            "schema": {
+              "type": "float"
+            },
+            "example": "1.3"
+          },
+          {
+            "name": "tiltPlateY",
+            "in": "query",
+            "description": "The current tilt plate y position in mm",
+            "required": true,
+            "schema": {
+              "type": "float"
+            },
+            "example": "2.5"
+          },
+          {
+            "name": "expirationTiltPlateDelta",
+            "in": "query",
+            "description": "The deviation from reference beam taken tilt plate position over which a reference beam is considered expired in mm",
+            "required": true,
+            "schema": {
+              "type": "float"
+            },
+            "example": "4.3"
           }
         ],
 
@@ -1030,90 +1124,7 @@
         }
       }
     },
-    "/getMostRecentRefBeamMapMetaData": {
-      "get": {
-        "description": "Returns the most recently created reference map meta data for the given mask, filter and K-Mirror Position",
-        "operationId": "getMostRecentRefBeamMapMetaData",
-        "parameters": [
-          {
-            "name": "pupilMask",
-            "in": "query",
-            "description": "The PIT pupilMask used for the reference beam exposure",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "example": "PH-2-0"
-          },
-          {
-            "name": "filter",
-            "in": "query",
-            "description": "The PIT filter used for the reference beam exposure",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "example": "F750W"
-          },
-          {
-            "name": "kMirrorPosition",
-            "in": "query",
-            "description": "The K-Mirror position when the reference beam exposure was taken (degrees)",
-            "required": false,
-            "schema": {
-              "type": "float"
-            },
-            "example": "60.0"
-          }
-        ],
 
-        "responses": {
-          "200": {
-            "description": "The reference beam map meta data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReferenceMapMetaData"
-                },
-                "example": {
-                  "procedureRunId": "1234",
-                  "exposureTimestamp": "2045-02-23 11:23:35",
-                  "detector": "PSH",
-                  "pupilMask": "PH-2-0",
-                  "filter": "F890N",
-                  "kMirrorPos": "180",
-                  "detectorTemp:": "-25.4", 
-                  "tiltPlatePosX": "1.3",
-                  "tiltPlatePosY": "2.5"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "Error message."
-              }
-            }
-          },
-          "404": {
-            "description": "No data was found with the provided request",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                },
-                "example": "No matching data found"
-              }
-            }
-          }
-        }
-      }
-    },
       
     "/getMostRecentCameraPointingOffsets": {
       "get": {
