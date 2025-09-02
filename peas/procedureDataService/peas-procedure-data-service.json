@@ -519,7 +519,18 @@
               "type": "string"
             },
             "example": "1234"
-          }           
+          },
+          {
+            "name": "setupName",
+            "in": "query",
+            "description": "The setup name to lookup the desired configuration",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "pupilMaskType"
+          }         
+        
         ],
 
         "responses": {
@@ -535,12 +546,8 @@
                 },
                 "example": [
                   {
-                    "key": {"iterationNumber": 1, "fieldName": "temperatureSetpoint"},
-                    "value": {"type": "double", "dim1": 1, "dim2": 1, "encodedStringValue": "36.5"}
-                  },
-                  {
-                    "key": {"iterationNumber": 1, "fieldName": "otherField"},
-                    "value": {"type": "integer", "dim1": 1, "dim2": 1, "encodedStringValue": "16"}
+                    "key": {"iterationNumber": 1, "fieldName": "pupilMaskType"},
+                    "value": {"type": "string", "dim1": 1, "dim2": 1, "encodedStringValue": "coarseTiltMask"}
                   }
                 ]                
               }
@@ -574,7 +581,7 @@
       
    "/getProcedureAsRunConfigurationData": {
       "get": {
-        "description": "Returns all as-run (user changeable) configuration key/value pairs used for the given procedure run.",
+        "description": "Return an as-run (user changeable) configuration key/value pair used for the given procedure run.",
         "operationId": "getProcedureAsRunConfigurationData",
         "parameters": [
           {
@@ -586,7 +593,18 @@
               "type": "string"
             },
             "example": "1234"
+          },
+          {
+            "name": "configName",
+            "in": "query",
+            "description": "The configuration name to lookup the desired configuration",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "FindAndIdentify.fourierQualityThreshold"
           }         
+
         ],
 
         "responses": {
@@ -602,12 +620,12 @@
                 },
                 "example": [
                   {
-                    "key": {"fieldName": "scalarValue"},
+                    "key": {"configName": "scalarValue"},
                     "value": {"type": "double", "dim1": 1, "dim2": 1, "encodedStringValue": "36.5"}
                   },
                   {
-                    "key": {"fieldName": "otherField"},
-                    "value": {"type": "integer", "dim1": 1, "dim2": 1, "encodedStringValue": "16"}
+                    "key": {"configName": "FindAndIdentify.fourierQualityThreshold"},
+                    "value": {"type": "double", "dim1": 1, "dim2": 1, "encodedStringValue": "0.96"}
                   }
                 ]                
               }
@@ -1253,15 +1271,7 @@
           }
         }
       }
-    }  
-      
-      
-      
-      
-
-      
-      
-      
+    }       
       
   },
     
@@ -1305,11 +1315,11 @@
         
       "AsRunConfigurationValueKey": {
         "required": [
-          "fieldName"
+          "configName"
         ],
         "type": "object",
         "properties": {
-          "fieldName": {
+          "configName": {
             "type": "string"
           }
         }
