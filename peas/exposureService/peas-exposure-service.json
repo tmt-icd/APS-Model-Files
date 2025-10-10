@@ -49,6 +49,29 @@
       }
     },
 
+   "/syncToCurrentDisk": {
+      "post": {
+        "description": "Syncs the database to with the current shared disk. Common use case is for updates to local disk in development environments",
+        "operationId": "syncToCurrentDisk",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
+
  
  
     "/queryPshExposureFiles": {
