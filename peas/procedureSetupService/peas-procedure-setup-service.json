@@ -884,7 +884,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/StarRecord"
+                    "$ref": "#/components/schemas/ApsStarRecord"
                   }
                 },
                 "example": [
@@ -899,7 +899,13 @@
                     "pshPupilMask": "SH-0", 
                     "pshFilter": "F890N", 
                     "pitFilter": "F890N",
-                    "aptFilter": "ND1"
+                    "aptFilter": "ND1",
+                    "pshIntegrationTime": 36.0, 
+                    "pitIntegrationTime": 36.0,
+                    "aptIntegrationTime": 0.08,
+                    "pshGain": "LOW", 
+                    "pitGain": "LOW",
+                    "aptGain": "HIGH"
                   }
                 ]
               }
@@ -932,13 +938,23 @@
               },
               "example": {
                 "starId": "1234",
-                "procedureTypeId": "PH-2-0",
+                "starName": "Tau Ceti",
+                "magnitude": 7.2,
+                "color": "white",
+                "ra": 36.2,
+                "dec": 298.2,
+                "specificAttrs": "BINARY",
+                "pshPupilMask": "PH-2-0",
                 "pshFilter": "F890N",
                 "pitFilter": "F890N",
                 "aptFilter": "ND1",
                 "pshIntegrationTime": 34.5,
                 "pitIntegrationTime": 4.6,
-                "aptIntegrationTime": 0.07
+                "aptIntegrationTime": 0.07,
+                "pshGain": "LOW", 
+                "pitGain": "LOW",
+                "aptGain": "HIGH"
+
               }
             }
           }
@@ -1240,6 +1256,25 @@
           "starId": {
             "type": "string"
           },
+          "starName": {
+            "type": "string"
+          },
+          "magnitude": {
+            "type": "float"
+          },
+          "color": {
+            "type": "string"
+          },
+          "ra": {
+            "type": "float"
+          },
+          "dec": {
+            "type": "float"
+          },
+          "specificAttrs": {
+            "type": "string",
+            "enum": ["VARIABLE", "BINARY", "NONE"]
+          },
           "pshPupilMask": {
             "type": "string",
             "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
@@ -1267,6 +1302,18 @@
           "aptIntegrationTime": {
             "type": "float",
             "description": "integration time in sec"
+          },
+          "pshGain": {
+            "type": "string",
+            "enum": ["LOW", "HIGH"]
+          },
+          "pitGain": {
+            "type": "string",
+            "enum": ["LOW", "HIGH"]
+          },
+          "aptGain": {
+            "type": "string",
+            "enum": ["LOW", "HIGH"]
           }
         }
       },
