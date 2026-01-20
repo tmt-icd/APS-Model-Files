@@ -925,9 +925,140 @@
         }
       }
     },
+    "/getApsStarList": {
+      "get": {
+        "description": "Returns a list of stars in the DMS.CAT APS custom star catalog that match the search criteria.",
+        "operationId": "getApsStarList",
+        "parameters": [
+          {
+            "name": "raRangeStart",
+            "in": "query",
+            "required": true,
+            "description": "RA search range start in degrees",
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "raRangeEnd",
+            "in": "query",
+            "required": true,
+            "description": "RA search range end in degrees",
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "decRangeStart",
+            "in": "query",
+            "required": true,
+            "description": "DEC search range start in degrees",
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "decRangeEnd",
+            "in": "query",
+            "required": true,
+            "description": "DEC search range end in degrees",
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "minMagnitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "maxMagnitude",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          {
+            "name": "pshPupilMask",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["PH-2-0", "SH-0", "SH-2", "SH-5", "Clear"]
+            }
+          },
+          {
+            "name": "pshFilter",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["F890N", "F891N", "F850M", "F750W", "F810N", "F630N", "F865N"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all stars in the APS custom star catalog within ra, dec and magnitude ranges.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApsStarRecord"
+                  }
+                },
+                "example": [
+                  {   
+                    "starId": "HR 509",
+                    "starName": "Tau Ceti",
+                    "magnitude": 7.2,
+                    "color": "white",
+                    "ra": 36.2,
+                    "dec": 298.2,
+                    "specificAttrs": "BINARY",
+                    "pshPupilMask": "SH-0", 
+                    "pshFilter": "F890N", 
+                    "pitFilter": "F890N",
+                    "aptFilter": "ND1",
+                    "pshIntegrationTime": 36.0, 
+                    "pitIntegrationTime": 36.0,
+                    "aptIntegrationTime": 0.08,
+                    "pshGain": "LOW", 
+                    "pitGain": "LOW",
+                    "aptGain": "HIGH"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          }
+        }
+      }
+    },
     "/addApsStarRecord": {
       "post": {
-        "description": "Creates a new record in the DMS.CAT APS Specific Star Catalog.  Fails (record already exists) if a record for the star, PSH Pupil Mask and PSH Filter already exists.  The record created also contains fields from the /getStarList star attributes, which is obtained by querying DMS standard star catalog (TBD)",
+        "description": "Creates a new record in the DMS.CAT APS Specific Star Catalog.  Fails  if a record for the star, PSH Pupil Mask and PSH Filter already exists and is marked as not removed.  The record created also contains fields from the /getStarList star attributes, which is obtained by querying DMS standard star catalog (TBD)",
         "operationId": "addApsStarRecord",
         "requestBody": {
           "description": "Values required to create a record in the DMS.CAT APS Specific Star Catalog",
@@ -988,6 +1119,61 @@
                     "code": {
                       "type": "string",
                       "example": "RECORD_ALREADY_EXISTS"
+                    }
+                  },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/removeApsStarRecord": {
+      "delete": {
+        "description": "Marks a record in the DMS.CAT APS Specific Star Catalog as removed.  Fails if a record for the star does not exist",
+        "operationId": "removeApsStarRecord",
+        "parameters": [
+            {
+                "name": "starId",
+                "in": "path",
+                "required": true, 
+                "description": "Unique Identifier of the star",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Star removed successfully"
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Error message."
+              }
+            }
+          },
+          "404": {
+            "description": "Star record not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "A star entry matching values in this request was not found."
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "STAR_NOT_FOUND"
                     }
                   },
                   "required": ["error"]
